@@ -40,7 +40,7 @@
 
 #include conf.mk
 # MCU name
-MCU = atmega644a
+MCU = atmega644
 
 
 # Processor frequency.
@@ -50,10 +50,10 @@ MCU = atmega644a
 #     automatically to create a 32-bit value in your source code.
 F_CPU = 16000000
 
-AVRDUDE_PROGRAMMER = avrispmkII
+AVRDUDE_PROGRAMMER = avrispv2
 
 # com1 = serial port. Use lpt1 to connect to parallel port.
-AVRDUDE_PORT = /dev/usb    # programmer connected to serial device
+AVRDUDE_PORT = usb  # programmer connected to serial device
 
 # Output format. (can be srec, ihex, binary)
 FORMAT = ihex

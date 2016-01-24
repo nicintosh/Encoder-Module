@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:encoder.xcodeproj">
+      location = "self:/Users/nicholasburgel/Documents/JIN/encoder/Encoder Module.xcodeproj">
    </FileRef>
 </Workspace>

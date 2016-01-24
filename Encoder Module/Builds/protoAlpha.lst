@@ -1,0 +1,19 @@
+   1               		.file	"protoAlpha.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   8               		.text
+   9               	.Ltext0:
+  59               	.Letext0:
+  60               		.ident	"GCC: (GNU) 4.8.1"
+DEFINED SYMBOLS
+                            *ABS*:00000000 protoAlpha.c
+/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccbRLVrx.s:2      *ABS*:0000003e __SP_H__
+/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccbRLVrx.s:3      *ABS*:0000003d __SP_L__
+/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccbRLVrx.s:4      *ABS*:0000003f __SREG__
+/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccbRLVrx.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccbRLVrx.s:6      *ABS*:00000001 __zero_reg__
+
+NO UNDEFINED SYMBOLS
