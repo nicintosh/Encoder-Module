@@ -49,14 +49,10 @@ void initIO(void) {
     /*
      * Port C Setup
      *
-     * Pin 0: Encoder Select 1 (OUTPUT)
-     * Pin 1: Encoder Select 2 (OUTPUT)
-     * Pin 2: Encoder OE (OUTPUT)
-     * Pin 3: Encoder Reset (OUTPUT)
-     * Pin 4: N/A
-     * Pin 5: N/A
-     * Pin 6: N/A
-     * Pin 7: N/A
+     * Pin 7: Encoder Select 1 (OUTPUT)
+     * Pin 6: Encoder Select 2 (OUTPUT)
+     * Pin 5: Encoder OE (OUTPUT)
+     * Pin 4: Encoder Reset (OUTPUT)
      */
     DDRC = 0xFF;
     PORTC = 0b00000000;
