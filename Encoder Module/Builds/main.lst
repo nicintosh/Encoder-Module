@@ -21,67 +21,82 @@
   11:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** #include <avr/interrupt.h>
   12:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** #include <util/delay.h>
   13:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** #include <stdint.h>
-  14:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** #include "protoAlpha.c"
-  15:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** 
-  16:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** //Global Variables
-  17:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** int32_t setPosition;
-  18:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** int32_t actualPosition;
-  19:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** 
-  20:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** void initIO(void) {
+  14:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** #include <stdbool.h>
+  15:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** #include "protoAlpha.c"
+  16:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** 
+  17:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** //Global Variables
+  18:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** int32_t setPosition;
+  19:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** int32_t actualPosition;
+  20:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** float ratio;
+  21:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** 
+  22:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** void initIO(void) {
  122               	.LM0:
  123               	.LFBB1:
  124               	/* prologue: function */
  125               	/* frame size = 0 */
  126               	/* stack size = 0 */
  127               	.L__stack_usage = 0
-  21:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
-  22:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     /*
-  23:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Port A Setup
-  24:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * 
-  25:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Encoder input port
-  26:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      */
-  27:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     DDRA = 0b00000000;
+  23:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+  24:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     MCUCR = (1<<JTD);
  129               	.LM1:
- 130 0000 11B8      		out 0x1,__zero_reg__
-  28:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
-  29:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     /*
-  30:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Port B Setup
-  31:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      *
-  32:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 0: N/A
-  33:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 1: CLK Out (set in fuse)
-  34:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 2: Step Input
-  35:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 3: Direction Input
-  36:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 4: N/A
-  37:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 5: MOSI
-  38:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 6: MISO
-  39:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 7: SCK
-  40:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      */
-  41:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     DDRB = 0b00000000;
- 132               	.LM2:
- 133 0002 14B8      		out 0x4,__zero_reg__
-  42:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
-  43:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     /*
-  44:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Port C Setup
-  45:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      *
-  46:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 0: Encoder Select 1 (OUTPUT)
-  47:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 1: Encoder Select 2 (OUTPUT)
-  48:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 2: Encoder OE (OUTPUT)
-  49:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 3: Encoder Reset (OUTPUT)
-  50:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 4: N/A
-  51:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 5: N/A
-  52:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 6: N/A
-  53:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 7: N/A
-  54:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      */
-  55:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     DDRC = 0b00001111;
- 135               	.LM3:
- 136 0004 8FE0      		ldi r24,lo8(15)
- 137 0006 87B9      		out 0x7,r24
-  56:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     PORTC = 0b00000000;
+ 130 0000 80E8      		ldi r24,lo8(-128)
+ 131 0002 85BF      		out 0x35,r24
+  25:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     MCUCR = (1<<JTD);
+ 133               	.LM2:
+ 134 0004 85BF      		out 0x35,r24
+  26:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+  27:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     /*
+  28:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Port A Setup
+  29:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * 
+  30:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Encoder input port
+  31:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      */
+  32:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     DDRA = 0b00000000;
+ 136               	.LM3:
+ 137 0006 11B8      		out 0x1,__zero_reg__
+  33:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+  34:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     /*
+  35:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Port B Setup
+  36:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      *
+  37:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 0: N/A
+  38:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 1: CLK Out (set in fuse)
+  39:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 2: Step Input
+  40:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 3: Direction Input
+  41:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 4: N/A
+  42:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 5: MOSI
+  43:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 6: MISO
+  44:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 7: SCK
+  45:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      */
+  46:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     DDRB = 0b00001000;
  139               	.LM4:
- 140 0008 18B8      		out 0x8,__zero_reg__
- 141               	.LBB9:
- 142               	.LBB10:
- 144               	.Ltext1:
+ 140 0008 88E0      		ldi r24,lo8(8)
+ 141 000a 84B9      		out 0x4,r24
+  47:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     PORTB = 0b00000100;
+ 143               	.LM5:
+ 144 000c 84E0      		ldi r24,lo8(4)
+ 145 000e 85B9      		out 0x5,r24
+  48:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+  49:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     /*
+  50:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Port C Setup
+  51:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      *
+  52:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 0: Encoder Select 1 (OUTPUT)
+  53:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 1: Encoder Select 2 (OUTPUT)
+  54:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 2: Encoder OE (OUTPUT)
+  55:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 3: Encoder Reset (OUTPUT)
+  56:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 4: N/A
+  57:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 5: N/A
+  58:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 6: N/A
+  59:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 7: N/A
+  60:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      */
+  61:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     DDRC = 0xFF;
+ 147               	.LM6:
+ 148 0010 8FEF      		ldi r24,lo8(-1)
+ 149 0012 87B9      		out 0x7,r24
+  62:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     PORTC = 0b00000000;
+ 151               	.LM7:
+ 152 0014 18B8      		out 0x8,__zero_reg__
+ 153               	.LBB13:
+ 154               	.LBB14:
+ 156               	.Ltext1:
    1:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** /* Copyright (c) 2002, Marek Michalkiewicz
    2:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Copyright (c) 2004,2005,2007 Joerg Wunsch
    3:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h ****    Copyright (c) 2007  Florin-Viorel Petrov
@@ -245,6 +260,285 @@
  161:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#endif
  162:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
  163:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+ 158               	.LM8:
+ 159 0016 8FE3      		ldi r24,lo8(-25537)
+ 160 0018 9CE9      		ldi r25,hi8(-25537)
+ 161 001a 0197      		1: sbiw r24,1
+ 162 001c 01F4      		brne 1b
+ 163 001e 00C0      		rjmp .
+ 164 0020 0000      		nop
+ 165               	.LBE14:
+ 166               	.LBE13:
+ 168               	.Ltext2:
+  63:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     _delay_ms(10);
+  64:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     PORTC = 0b00010000;
+ 170               	.LM9:
+ 171 0022 80E1      		ldi r24,lo8(16)
+ 172 0024 88B9      		out 0x8,r24
+  65:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+  66:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     /*
+  67:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Port D Setup
+  68:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      *
+  69:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 0: Stepper Driver Enable (OUTPUT)
+  70:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 1: Stepper Driver Step Size 1 (OUTPUT)
+  71:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 2: Stepper Driver Step Size 2 (OUTPUT)
+  72:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 3: Stepper Driver Step Size 3 (OUTPUT)
+  73:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 4: Stepper Driver Step (OUTPUT)
+  74:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 5: Stepper Driver Direction (OUTPUT)
+  75:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 6: N/A
+  76:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 7: N/A
+  77:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      */
+  78:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     DDRD = 0xFF;
+ 174               	.LM10:
+ 175 0026 8FEF      		ldi r24,lo8(-1)
+ 176 0028 8AB9      		out 0xa,r24
+  79:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     PORTD = 0b00000000;
+ 178               	.LM11:
+ 179 002a 1BB8      		out 0xb,__zero_reg__
+  80:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+  81:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     //Enable Interupt
+  82:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     //EICRA = (1<<ISC20);
+  83:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     //EICRA = (1<<ISC21);
+  84:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     //EIMSK = (1<<INT2);
+  85:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     //sei();
+  86:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+  87:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+  88:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     setPosition = 0;
+ 181               	.LM12:
+ 182 002c 1092 0000 		sts setPosition,__zero_reg__
+ 183 0030 1092 0000 		sts setPosition+1,__zero_reg__
+ 184 0034 1092 0000 		sts setPosition+2,__zero_reg__
+ 185 0038 1092 0000 		sts setPosition+3,__zero_reg__
+  89:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     actualPosition = 0;
+ 187               	.LM13:
+ 188 003c 1092 0000 		sts actualPosition,__zero_reg__
+ 189 0040 1092 0000 		sts actualPosition+1,__zero_reg__
+ 190 0044 1092 0000 		sts actualPosition+2,__zero_reg__
+ 191 0048 1092 0000 		sts actualPosition+3,__zero_reg__
+  90:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     ratio = 6;
+ 193               	.LM14:
+ 194 004c 80E0      		ldi r24,0
+ 195 004e 90E0      		ldi r25,0
+ 196 0050 A0EC      		ldi r26,lo8(-64)
+ 197 0052 B0E4      		ldi r27,lo8(64)
+ 198 0054 8093 0000 		sts ratio,r24
+ 199 0058 9093 0000 		sts ratio+1,r25
+ 200 005c A093 0000 		sts ratio+2,r26
+ 201 0060 B093 0000 		sts ratio+3,r27
+ 202 0064 0895      		ret
+ 204               	.Lscope1:
+ 205               	.global	__floatsisf
+ 206               	.global	__divsf3
+ 207               	.global	__fixsfsi
+ 209               	.global	readEncoder
+ 211               	readEncoder:
+  91:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** }
+  92:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** 
+  93:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** /**
+  94:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  * Name: readEncoder
+  95:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  * Details: Reads the data from the encoder.
+  96:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  *
+  97:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  * Inputs:
+  98:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  * Ouputs: position: the position of the encoder
+  99:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  */
+ 100:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** int32_t readEncoder(){
+ 213               	.LM15:
+ 214               	.LFBB2:
+ 215               	/* prologue: function */
+ 216               	/* frame size = 0 */
+ 217               	/* stack size = 0 */
+ 218               	.L__stack_usage = 0
+ 101:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****    
+ 102:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     int32_t position = 0;
+ 103:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+ 104:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Enable the quadrature decoder
+ 105:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     bit_clear(ENCODER, ENC_OE);
+ 220               	.LM16:
+ 221 0066 4598      		cbi 0x8,5
+ 106:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+ 107:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     bit_clear(ENCODER, ENC_SEL1);
+ 223               	.LM17:
+ 224 0068 4798      		cbi 0x8,7
+ 108:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     bit_set(ENCODER, ENC_SEL2);
+ 226               	.LM18:
+ 227 006a 469A      		sbi 0x8,6
+ 109:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+ 110:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Read Byte
+ 111:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     position = DATA;
+ 229               	.LM19:
+ 230 006c 60B1      		in r22,0
+ 231 006e 862F      		mov r24,r22
+ 232 0070 90E0      		ldi r25,0
+ 233 0072 A0E0      		ldi r26,0
+ 234 0074 B0E0      		ldi r27,0
+ 112:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+ 113:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Select second Byte
+ 114:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     bit_set(ENCODER, ENC_SEL1);
+ 236               	.LM20:
+ 237 0076 479A      		sbi 0x8,7
+ 115:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     bit_set(ENCODER, ENC_SEL2);
+ 239               	.LM21:
+ 240 0078 469A      		sbi 0x8,6
+ 116:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** 
+ 117:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Read Byte
+ 118:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     position = position << 8;
+ 242               	.LM22:
+ 243 007a BA2F      		mov r27,r26
+ 244 007c A92F      		mov r26,r25
+ 245 007e 982F      		mov r25,r24
+ 246 0080 8827      		clr r24
+ 119:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     position += DATA;
+ 248               	.LM23:
+ 249 0082 20B1      		in r18,0
+ 250 0084 820F      		add r24,r18
+ 251 0086 911D      		adc r25,__zero_reg__
+ 252 0088 A11D      		adc r26,__zero_reg__
+ 253 008a B11D      		adc r27,__zero_reg__
+ 120:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+ 121:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Select first Byte
+ 122:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     bit_clear(ENCODER, ENC_SEL1);
+ 255               	.LM24:
+ 256 008c 4798      		cbi 0x8,7
+ 123:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     bit_clear(ENCODER, ENC_SEL2);
+ 258               	.LM25:
+ 259 008e 4698      		cbi 0x8,6
+ 124:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****    
+ 125:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Read Byte
+ 126:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     position = position << 8;
+ 261               	.LM26:
+ 262 0090 BA2F      		mov r27,r26
+ 263 0092 A92F      		mov r26,r25
+ 264 0094 982F      		mov r25,r24
+ 265 0096 8827      		clr r24
+ 127:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     position += DATA;
+ 267               	.LM27:
+ 268 0098 20B1      		in r18,0
+ 269 009a 820F      		add r24,r18
+ 270 009c 911D      		adc r25,__zero_reg__
+ 271 009e A11D      		adc r26,__zero_reg__
+ 272 00a0 B11D      		adc r27,__zero_reg__
+ 128:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+ 129:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Select first Byte
+ 130:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     bit_set(ENCODER, ENC_SEL1);
+ 274               	.LM28:
+ 275 00a2 479A      		sbi 0x8,7
+ 131:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     bit_clear(ENCODER, ENC_SEL2);
+ 277               	.LM29:
+ 278 00a4 4698      		cbi 0x8,6
+ 132:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+ 133:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Read Byte
+ 134:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     position = position << 8;
+ 280               	.LM30:
+ 281 00a6 6627      		clr r22
+ 282 00a8 782F      		mov r23,r24
+ 283 00aa 892F      		mov r24,r25
+ 284 00ac 9A2F      		mov r25,r26
+ 135:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     position += DATA;
+ 286               	.LM31:
+ 287 00ae 20B1      		in r18,0
+ 136:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+ 137:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     //Disable quadrature decoder
+ 138:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     bit_set(ENCODER, ENC_OE);
+ 289               	.LM32:
+ 290 00b0 459A      		sbi 0x8,5
+ 135:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     position += DATA;
+ 292               	.LM33:
+ 293 00b2 620F      		add r22,r18
+ 294 00b4 711D      		adc r23,__zero_reg__
+ 295 00b6 811D      		adc r24,__zero_reg__
+ 296 00b8 911D      		adc r25,__zero_reg__
+ 139:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+ 140:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Return Position
+ 141:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     position = position/7.2;
+ 298               	.LM34:
+ 299 00ba 0E94 0000 		call __floatsisf
+ 300 00be 26E6      		ldi r18,lo8(102)
+ 301 00c0 36E6      		ldi r19,lo8(102)
+ 302 00c2 46EE      		ldi r20,lo8(-26)
+ 303 00c4 50E4      		ldi r21,lo8(64)
+ 304 00c6 0E94 0000 		call __divsf3
+ 305 00ca 0E94 0000 		call __fixsfsi
+ 142:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     return position;
+ 143:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** }
+ 307               	.LM35:
+ 308 00ce 0895      		ret
+ 310               	.Lscope2:
+ 314               	.global	step
+ 316               	step:
+ 144:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** 
+ 145:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** /**
+ 146:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  * Name: stepper
+ 147:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  * Details: Provides control of stepper driver
+ 148:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  *
+ 149:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  * Inputs: steps: 32 bit variable, number of steps
+ 150:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  *         direction: 8 bit variable, direction of motor
+ 151:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  *                      0xFF = backwards
+ 152:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  *                      0x00 = Forwards
+ 153:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  * Ouputs: success: Boolean success confirmation
+ 154:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  */
+ 155:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** void step(int32_t numSteps, int32_t direction) {
+ 318               	.LM36:
+ 319               	.LFBB3:
+ 320 00d0 CF92      		push r12
+ 321 00d2 DF92      		push r13
+ 322 00d4 EF92      		push r14
+ 323 00d6 FF92      		push r15
+ 324               	/* prologue: function */
+ 325               	/* frame size = 0 */
+ 326               	/* stack size = 4 */
+ 327               	.L__stack_usage = 4
+ 156:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+ 157:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+ 158:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Set direction
+ 159:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     if (direction == 0) {
+ 329               	.LM37:
+ 330 00d8 2115      		cp r18,__zero_reg__
+ 331 00da 3105      		cpc r19,__zero_reg__
+ 332 00dc 4105      		cpc r20,__zero_reg__
+ 333 00de 5105      		cpc r21,__zero_reg__
+ 334 00e0 01F4      		brne .L4
+ 160:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         bit_set(STEPPER, SD_DIR);
+ 336               	.LM38:
+ 337 00e2 5D9A      		sbi 0xb,5
+ 338               	.L6:
+ 155:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** void step(int32_t numSteps, int32_t direction) {
+ 340               	.LM39:
+ 341 00e4 C12C      		mov r12,__zero_reg__
+ 342 00e6 D12C      		mov r13,__zero_reg__
+ 343 00e8 7601      		movw r14,r12
+ 344 00ea 00C0      		rjmp .L5
+ 345               	.L4:
+ 161:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     }
+ 162:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     else if (direction == 1) {
+ 347               	.LM40:
+ 348 00ec 2130      		cpi r18,1
+ 349 00ee 3105      		cpc r19,__zero_reg__
+ 350 00f0 4105      		cpc r20,__zero_reg__
+ 351 00f2 5105      		cpc r21,__zero_reg__
+ 352 00f4 01F4      		brne .L6
+ 163:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         bit_clear(STEPPER, SD_DIR);
+ 354               	.LM41:
+ 355 00f6 5D98      		cbi 0xb,5
+ 356 00f8 00C0      		rjmp .L6
+ 357               	.L5:
+ 358               	.LBB15:
+ 164:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     }
+ 165:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+ 166:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Loop till all steps complete
+ 167:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     for (int32_t i = 0; i <= numSteps; i++){
+ 360               	.LM42:
+ 361 00fa 6C15      		cp r22,r12
+ 362 00fc 7D05      		cpc r23,r13
+ 363 00fe 8E05      		cpc r24,r14
+ 364 0100 9F05      		cpc r25,r15
+ 365 0102 04F0      		brlt .L9
+ 168:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         //Create steps
+ 169:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         bit_set(STEPPER, SD_STEP);
+ 367               	.LM43:
+ 368 0104 5C9A      		sbi 0xb,4
+ 369               	.LBB16:
+ 370               	.LBB17:
+ 372               	.Ltext3:
  164:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
  165:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** #else
  166:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	uint16_t __ticks;
@@ -327,372 +621,207 @@
  243:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	#endif
  244:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 
  245:/usr/local/CrossPack-AVR-20131216/avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
- 146               	.LM5:
- 147 000a 87EC      		ldi r24,lo8(199)
- 148 000c 90E0      		ldi r25,hi8(199)
- 149 000e 0197      		1: sbiw r24,1
- 150 0010 01F4      		brne 1b
- 151 0012 00C0      		rjmp .
- 152 0014 0000      		nop
- 153               	.LBE10:
- 154               	.LBE9:
- 156               	.Ltext2:
-  57:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     _delay_us(50);
-  58:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     PORTC = 0b00001000;
- 158               	.LM6:
- 159 0016 88E0      		ldi r24,lo8(8)
- 160 0018 88B9      		out 0x8,r24
-  59:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
-  60:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     /*
-  61:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Port D Setup
-  62:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      *
-  63:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 0: Stepper Driver Enable (OUTPUT)
-  64:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 1: Stepper Driver Step Size 1 (OUTPUT)
-  65:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 2: Stepper Driver Step Size 2 (OUTPUT)
-  66:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 3: Stepper Driver Step Size 3 (OUTPUT)
-  67:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 4: Stepper Driver Step (OUTPUT)
-  68:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 5: Stepper Driver Direction (OUTPUT)
-  69:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 6: N/A
-  70:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      * Pin 7: N/A
-  71:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****      */
-  72:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     DDRD = 0xFF;
- 162               	.LM7:
- 163 001a 8FEF      		ldi r24,lo8(-1)
- 164 001c 8AB9      		out 0xa,r24
-  73:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     PORTD = 0b00000000;
- 166               	.LM8:
- 167 001e 1BB8      		out 0xb,__zero_reg__
-  74:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
-  75:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     setPosition = 0;
- 169               	.LM9:
- 170 0020 1092 0000 		sts setPosition,__zero_reg__
- 171 0024 1092 0000 		sts setPosition+1,__zero_reg__
- 172 0028 1092 0000 		sts setPosition+2,__zero_reg__
- 173 002c 1092 0000 		sts setPosition+3,__zero_reg__
-  76:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     actualPosition = 0;
- 175               	.LM10:
- 176 0030 1092 0000 		sts actualPosition,__zero_reg__
- 177 0034 1092 0000 		sts actualPosition+1,__zero_reg__
- 178 0038 1092 0000 		sts actualPosition+2,__zero_reg__
- 179 003c 1092 0000 		sts actualPosition+3,__zero_reg__
- 180 0040 0895      		ret
- 182               	.Lscope1:
- 184               	.global	readEncoder
- 186               	readEncoder:
-  77:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** }
-  78:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** 
-  79:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** /**
-  80:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  * Name: readEncoder
-  81:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  * Details: Reads the data from the encoder.
-  82:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  *
-  83:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  * Inputs:
-  84:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  * Ouputs: position: the position of the encoder
-  85:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  */
-  86:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** int32_t readEncoder(){
- 188               	.LM11:
- 189               	.LFBB2:
- 190               	/* prologue: function */
- 191               	/* frame size = 0 */
- 192               	/* stack size = 0 */
- 193               	.L__stack_usage = 0
-  87:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
-  88:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     int32_t position = 0;
-  89:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
-  90:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Enable the quadrature decoder
-  91:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     bit_clear(ENCODER, ENC_OE);
- 195               	.LM12:
- 196 0042 4298      		cbi 0x8,2
-  92:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
-  93:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Select first Byte
-  94:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     bit_clear(ENCODER, ENC_SEL1);
- 198               	.LM13:
- 199 0044 4098      		cbi 0x8,0
-  95:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     bit_set(ENCODER, ENC_SEL2);
- 201               	.LM14:
- 202 0046 419A      		sbi 0x8,1
-  96:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
-  97:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Read Byte
-  98:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     position = PINC;
- 204               	.LM15:
- 205 0048 66B1      		in r22,0x6
- 206 004a 862F      		mov r24,r22
- 207 004c 90E0      		ldi r25,0
- 208 004e A0E0      		ldi r26,0
- 209 0050 B0E0      		ldi r27,0
-  99:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
- 100:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Select second Byte
- 101:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     bit_set(ENCODER, ENC_SEL1);
- 211               	.LM16:
- 212 0052 409A      		sbi 0x8,0
- 102:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     bit_set(ENCODER, ENC_SEL2);
- 214               	.LM17:
- 215 0054 419A      		sbi 0x8,1
- 103:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
- 104:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Read Byte
- 105:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     position = position << 8;
- 217               	.LM18:
- 218 0056 BA2F      		mov r27,r26
- 219 0058 A92F      		mov r26,r25
- 220 005a 982F      		mov r25,r24
- 221 005c 8827      		clr r24
- 106:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     position += PINC;
- 223               	.LM19:
- 224 005e 26B1      		in r18,0x6
- 225 0060 820F      		add r24,r18
- 226 0062 911D      		adc r25,__zero_reg__
- 227 0064 A11D      		adc r26,__zero_reg__
- 228 0066 B11D      		adc r27,__zero_reg__
- 107:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
- 108:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Select first Byte
- 109:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     bit_clear(ENCODER, ENC_SEL1);
- 230               	.LM20:
- 231 0068 4098      		cbi 0x8,0
- 110:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     bit_clear(ENCODER, ENC_SEL2);
- 233               	.LM21:
- 234 006a 4198      		cbi 0x8,1
- 111:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
- 112:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Read Byte
- 113:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     position = position << 8;
- 236               	.LM22:
- 237 006c BA2F      		mov r27,r26
- 238 006e A92F      		mov r26,r25
- 239 0070 982F      		mov r25,r24
- 240 0072 8827      		clr r24
- 114:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     position += PINC;
- 242               	.LM23:
- 243 0074 26B1      		in r18,0x6
- 244 0076 820F      		add r24,r18
- 245 0078 911D      		adc r25,__zero_reg__
- 246 007a A11D      		adc r26,__zero_reg__
- 247 007c B11D      		adc r27,__zero_reg__
- 115:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
- 116:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Select first Byte
- 117:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     bit_set(ENCODER, ENC_SEL1);
- 249               	.LM24:
- 250 007e 409A      		sbi 0x8,0
- 118:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     bit_clear(ENCODER, ENC_SEL2);
- 252               	.LM25:
- 253 0080 4198      		cbi 0x8,1
- 119:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
- 120:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Read Byte
- 121:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     position = position << 8;
- 255               	.LM26:
- 256 0082 6627      		clr r22
- 257 0084 782F      		mov r23,r24
- 258 0086 892F      		mov r24,r25
- 259 0088 9A2F      		mov r25,r26
- 122:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     position += PINC;
- 261               	.LM27:
- 262 008a 26B1      		in r18,0x6
- 123:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
- 124:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     //Disable quadrature decoder
- 125:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     bit_set(ENCODER, ENC_OE);
- 264               	.LM28:
- 265 008c 429A      		sbi 0x8,2
- 122:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     position += PINC;
- 267               	.LM29:
- 268 008e 620F      		add r22,r18
- 269 0090 711D      		adc r23,__zero_reg__
- 270 0092 811D      		adc r24,__zero_reg__
- 271 0094 911D      		adc r25,__zero_reg__
- 126:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
- 127:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Return Position
- 128:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     return position;
- 129:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** }
- 273               	.LM30:
- 274 0096 0895      		ret
- 276               	.Lscope2:
- 280               	.global	step
- 282               	step:
- 130:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** 
- 131:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** /**
- 132:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  * Name: stepper
- 133:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  * Details: Provides control of stepper driver
- 134:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  *
- 135:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  * Inputs: steps: 32 bit variable, number of steps
- 136:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  *         direction: 8 bit variable, direction of motor
- 137:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  *                      0xFF = backwards
- 138:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  *                      0x00 = Forwards
- 139:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  * Ouputs: success: Boolean success confirmation
- 140:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****  */
- 141:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** void step(int32_t numSteps, int8_t direction) {
- 284               	.LM31:
- 285               	.LFBB3:
- 286 0098 0F93      		push r16
- 287 009a 1F93      		push r17
- 288               	/* prologue: function */
- 289               	/* frame size = 0 */
- 290               	/* stack size = 2 */
- 291               	.L__stack_usage = 2
- 142:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
- 143:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Set direction
- 144:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     if (direction == 0xff) {
- 145:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         bit_set(STEPPER, SD_DIR);
- 146:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     }
- 147:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     else if (direction == 0x00) {
- 293               	.LM32:
- 294 009c 4111      		cpse r20,__zero_reg__
- 295 009e 00C0      		rjmp .L4
- 148:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         bit_clear(STEPPER, SD_DIR);
- 297               	.LM33:
- 298 00a0 5D98      		cbi 0xb,5
- 299               	.L4:
- 141:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** void step(int32_t numSteps, int8_t direction) {
- 301               	.LM34:
- 302 00a2 00E0      		ldi r16,0
- 303 00a4 10E0      		ldi r17,0
- 304 00a6 9801      		movw r18,r16
- 305               	.L5:
- 306               	.LBB11:
- 149:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     }
- 150:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** 
- 151:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
- 152:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // Loop till all steps complete
- 153:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     for (int32_t i = 0; i <= numSteps; i++){
- 308               	.LM35:
- 309 00a8 6017      		cp r22,r16
- 310 00aa 7107      		cpc r23,r17
- 311 00ac 8207      		cpc r24,r18
- 312 00ae 9307      		cpc r25,r19
- 313 00b0 04F0      		brlt .L8
- 154:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         //Create steps
- 155:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         bit_set(STEPPER, SD_STEP);
- 315               	.LM36:
- 316 00b2 5C9A      		sbi 0xb,4
- 317               	.LBB12:
- 318               	.LBB13:
- 320               	.Ltext3:
- 322               	.LM37:
- 323 00b4 EFEC      		ldi r30,lo8(1999)
- 324 00b6 F7E0      		ldi r31,hi8(1999)
- 325 00b8 3197      		1: sbiw r30,1
- 326 00ba 01F4      		brne 1b
- 327 00bc 00C0      		rjmp .
- 328 00be 0000      		nop
- 329               	.LBE13:
- 330               	.LBE12:
- 332               	.Ltext4:
- 156:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         _delay_us(500);
- 157:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         bit_clear(STEPPER, SD_STEP);
- 334               	.LM38:
- 335 00c0 5C98      		cbi 0xb,4
- 336               	.LBB14:
- 337               	.LBB15:
- 339               	.Ltext5:
- 341               	.LM39:
- 342 00c2 EFEC      		ldi r30,lo8(1999)
- 343 00c4 F7E0      		ldi r31,hi8(1999)
- 344 00c6 3197      		1: sbiw r30,1
- 345 00c8 01F4      		brne 1b
- 346 00ca 00C0      		rjmp .
- 347 00cc 0000      		nop
- 348               	.LBE15:
- 349               	.LBE14:
- 351               	.Ltext6:
- 153:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     for (int32_t i = 0; i <= numSteps; i++){
- 353               	.LM40:
- 354 00ce 0F5F      		subi r16,-1
- 355 00d0 1F4F      		sbci r17,-1
- 356 00d2 2F4F      		sbci r18,-1
- 357 00d4 3F4F      		sbci r19,-1
- 358 00d6 00C0      		rjmp .L5
- 359               	.L8:
- 360               	/* epilogue start */
- 361               	.LBE11:
- 158:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         _delay_us(500);
- 159:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     }
- 160:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** }
- 363               	.LM41:
- 364 00d8 1F91      		pop r17
- 365 00da 0F91      		pop r16
- 366 00dc 0895      		ret
- 371               	.Lscope3:
- 372               		.section	.text.startup,"ax",@progbits
- 374               	.global	main
- 376               	main:
- 161:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** 
- 162:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** int main(void) {
- 378               	.LM42:
- 379               	.LFBB4:
- 380               	/* prologue: function */
- 381               	/* frame size = 0 */
- 382               	/* stack size = 0 */
- 383               	.L__stack_usage = 0
- 163:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     initIO();
- 385               	.LM43:
- 386 0000 0E94 0000 		call initIO
- 387               	.L10:
- 164:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
- 165:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     while (1) {
- 166:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         actualPosition = readEncoder();
- 389               	.LM44:
- 390 0004 0E94 0000 		call readEncoder
- 391 0008 6093 0000 		sts actualPosition,r22
- 392 000c 7093 0000 		sts actualPosition+1,r23
- 393 0010 8093 0000 		sts actualPosition+2,r24
- 394 0014 9093 0000 		sts actualPosition+3,r25
- 167:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****        if (actualPosition > setPosition) {
- 396               	.LM45:
- 397 0018 0091 0000 		lds r16,setPosition
- 398 001c 1091 0000 		lds r17,setPosition+1
- 399 0020 2091 0000 		lds r18,setPosition+2
- 400 0024 3091 0000 		lds r19,setPosition+3
- 401 0028 0617      		cp r16,r22
- 402 002a 1707      		cpc r17,r23
- 403 002c 2807      		cpc r18,r24
- 404 002e 3907      		cpc r19,r25
- 405 0030 04F4      		brge .L11
- 168:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****             step(actualPosition-setPosition, 0xff);
- 407               	.LM46:
- 408 0032 601B      		sub r22,r16
- 409 0034 710B      		sbc r23,r17
- 410 0036 820B      		sbc r24,r18
- 411 0038 930B      		sbc r25,r19
- 412 003a 4FEF      		ldi r20,lo8(-1)
- 413 003c 00C0      		rjmp .L13
- 414               	.L11:
- 169:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         }
- 170:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         else if (actualPosition < setPosition) {
- 416               	.LM47:
- 417 003e 6017      		cp r22,r16
- 418 0040 7107      		cpc r23,r17
- 419 0042 8207      		cpc r24,r18
- 420 0044 9307      		cpc r25,r19
- 421 0046 04F4      		brge .L10
- 171:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****             step(setPosition-actualPosition, 0x00);
- 423               	.LM48:
- 424 0048 6801      		movw r12,r16
- 425 004a 7901      		movw r14,r18
- 426 004c C61A      		sub r12,r22
- 427 004e D70A      		sbc r13,r23
- 428 0050 E80A      		sbc r14,r24
- 429 0052 F90A      		sbc r15,r25
- 430 0054 C701      		movw r24,r14
- 431 0056 B601      		movw r22,r12
- 432 0058 40E0      		ldi r20,0
- 433               	.L13:
- 434 005a 0E94 0000 		call step
- 435 005e 00C0      		rjmp .L10
- 437               	.Lscope4:
- 438               		.comm	actualPosition,4,1
- 439               		.comm	setPosition,4,1
- 442               		.text
- 444               	.Letext0:
- 445               		.ident	"GCC: (GNU) 4.8.1"
- 446               	.global __do_clear_bss
+ 374               	.LM44:
+ 375 0106 EFEC      		ldi r30,lo8(1999)
+ 376 0108 F7E0      		ldi r31,hi8(1999)
+ 377 010a 3197      		1: sbiw r30,1
+ 378 010c 01F4      		brne 1b
+ 379 010e 00C0      		rjmp .
+ 380 0110 0000      		nop
+ 381               	.LBE17:
+ 382               	.LBE16:
+ 384               	.Ltext4:
+ 170:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         _delay_us(500);
+ 171:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         bit_clear(STEPPER, SD_STEP);
+ 386               	.LM45:
+ 387 0112 5C98      		cbi 0xb,4
+ 388               	.LBB18:
+ 389               	.LBB19:
+ 391               	.Ltext5:
+ 393               	.LM46:
+ 394 0114 EFEC      		ldi r30,lo8(1999)
+ 395 0116 F7E0      		ldi r31,hi8(1999)
+ 396 0118 3197      		1: sbiw r30,1
+ 397 011a 01F4      		brne 1b
+ 398 011c 00C0      		rjmp .
+ 399 011e 0000      		nop
+ 400               	.LBE19:
+ 401               	.LBE18:
+ 403               	.Ltext6:
+ 167:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     for (int32_t i = 0; i <= numSteps; i++){
+ 405               	.LM47:
+ 406 0120 FFEF      		ldi r31,-1
+ 407 0122 CF1A      		sub r12,r31
+ 408 0124 DF0A      		sbc r13,r31
+ 409 0126 EF0A      		sbc r14,r31
+ 410 0128 FF0A      		sbc r15,r31
+ 411 012a 00C0      		rjmp .L5
+ 412               	.L9:
+ 413               	/* epilogue start */
+ 414               	.LBE15:
+ 172:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         _delay_us(500);
+ 173:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     }
+ 174:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** }
+ 416               	.LM48:
+ 417 012c FF90      		pop r15
+ 418 012e EF90      		pop r14
+ 419 0130 DF90      		pop r13
+ 420 0132 CF90      		pop r12
+ 421 0134 0895      		ret
+ 426               	.Lscope3:
+ 429               	.global	min
+ 431               	min:
+ 175:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** 
+ 176:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** int32_t min(int32_t a, int32_t b) {
+ 433               	.LM49:
+ 434               	.LFBB4:
+ 435               	/* prologue: function */
+ 436               	/* frame size = 0 */
+ 437               	/* stack size = 0 */
+ 438               	.L__stack_usage = 0
+ 439 0136 2617      		cp r18,r22
+ 440 0138 3707      		cpc r19,r23
+ 441 013a 4807      		cpc r20,r24
+ 442 013c 5907      		cpc r21,r25
+ 443 013e 04F4      		brge .L11
+ 444 0140 CA01      		movw r24,r20
+ 445 0142 B901      		movw r22,r18
+ 446               	.L11:
+ 177:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     if (a>b) {
+ 178:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         return b;
+ 179:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     }
+ 180:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     else {
+ 181:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         return a;
+ 182:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     }
+ 183:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** }
+ 448               	.LM50:
+ 449 0144 0895      		ret
+ 451               	.Lscope4:
+ 452               		.section	.text.startup,"ax",@progbits
+ 454               	.global	main
+ 456               	main:
+ 184:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** 
+ 185:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** 
+ 186:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** 
+ 187:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** //ISR(INT2_vect) {
+ 188:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     //setPosition += bit_get(INTERFACE, DIR_IN);
+ 189:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     // need to make return -1
+ 190:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** //}
+ 191:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** 
+ 192:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** 
+ 193:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c **** int main(void) {
+ 458               	.LM51:
+ 459               	.LFBB5:
+ 460               	/* prologue: function */
+ 461               	/* frame size = 0 */
+ 462               	/* stack size = 0 */
+ 463               	.L__stack_usage = 0
+ 194:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     initIO();
+ 465               	.LM52:
+ 466 0000 0E94 0000 		call initIO
+ 467               	.L13:
+ 195:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     
+ 196:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****     while (1) {
+ 197:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         actualPosition = readEncoder();
+ 469               	.LM53:
+ 470 0004 0E94 0000 		call readEncoder
+ 471 0008 6093 0000 		sts actualPosition,r22
+ 472 000c 7093 0000 		sts actualPosition+1,r23
+ 473 0010 8093 0000 		sts actualPosition+2,r24
+ 474 0014 9093 0000 		sts actualPosition+3,r25
+ 198:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         if (actualPosition > setPosition) {
+ 476               	.LM54:
+ 477 0018 0091 0000 		lds r16,setPosition
+ 478 001c 1091 0000 		lds r17,setPosition+1
+ 479 0020 2091 0000 		lds r18,setPosition+2
+ 480 0024 3091 0000 		lds r19,setPosition+3
+ 481 0028 0617      		cp r16,r22
+ 482 002a 1707      		cpc r17,r23
+ 483 002c 2807      		cpc r18,r24
+ 484 002e 3907      		cpc r19,r25
+ 485 0030 04F4      		brge .L14
+ 199:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****             step(min(actualPosition-setPosition,10), 1);
+ 487               	.LM55:
+ 488 0032 601B      		sub r22,r16
+ 489 0034 710B      		sbc r23,r17
+ 490 0036 820B      		sbc r24,r18
+ 491 0038 930B      		sbc r25,r19
+ 492 003a 6B30      		cpi r22,11
+ 493 003c 7105      		cpc r23,__zero_reg__
+ 494 003e 8105      		cpc r24,__zero_reg__
+ 495 0040 9105      		cpc r25,__zero_reg__
+ 496 0042 04F0      		brlt .L15
+ 497 0044 6AE0      		ldi r22,lo8(10)
+ 498 0046 70E0      		ldi r23,0
+ 499 0048 80E0      		ldi r24,0
+ 500 004a 90E0      		ldi r25,0
+ 501               	.L15:
+ 502 004c 21E0      		ldi r18,lo8(1)
+ 503 004e 30E0      		ldi r19,0
+ 504 0050 40E0      		ldi r20,0
+ 505 0052 50E0      		ldi r21,0
+ 506 0054 00C0      		rjmp .L18
+ 507               	.L14:
+ 200:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         }
+ 201:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****         else if (actualPosition < setPosition) {
+ 509               	.LM56:
+ 510 0056 6017      		cp r22,r16
+ 511 0058 7107      		cpc r23,r17
+ 512 005a 8207      		cpc r24,r18
+ 513 005c 9307      		cpc r25,r19
+ 514 005e 04F4      		brge .L13
+ 202:/Users/nicholasburgel/Documents/JIN/Encoder Module/Encoder Module/main.c ****             step(min(setPosition-actualPosition,10), 0);
+ 516               	.LM57:
+ 517 0060 6801      		movw r12,r16
+ 518 0062 7901      		movw r14,r18
+ 519 0064 C61A      		sub r12,r22
+ 520 0066 D70A      		sbc r13,r23
+ 521 0068 E80A      		sbc r14,r24
+ 522 006a F90A      		sbc r15,r25
+ 523 006c C701      		movw r24,r14
+ 524 006e B601      		movw r22,r12
+ 525 0070 6B30      		cpi r22,11
+ 526 0072 7105      		cpc r23,__zero_reg__
+ 527 0074 8105      		cpc r24,__zero_reg__
+ 528 0076 9105      		cpc r25,__zero_reg__
+ 529 0078 04F0      		brlt .L17
+ 530 007a 6AE0      		ldi r22,lo8(10)
+ 531 007c 70E0      		ldi r23,0
+ 532 007e 80E0      		ldi r24,0
+ 533 0080 90E0      		ldi r25,0
+ 534               	.L17:
+ 535 0082 20E0      		ldi r18,0
+ 536 0084 30E0      		ldi r19,0
+ 537 0086 A901      		movw r20,r18
+ 538               	.L18:
+ 539 0088 0E94 0000 		call step
+ 540 008c 00C0      		rjmp .L13
+ 542               	.Lscope5:
+ 543               		.comm	ratio,4,1
+ 544               		.comm	actualPosition,4,1
+ 545               		.comm	setPosition,4,1
+ 549               		.text
+ 551               	.Letext0:
+ 552               		.ident	"GCC: (GNU) 4.8.1"
+ 553               	.global __do_clear_bss
 DEFINED SYMBOLS
                             *ABS*:00000000 main.c
-/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccVUIGBT.s:2      *ABS*:0000003e __SP_H__
-/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccVUIGBT.s:3      *ABS*:0000003d __SP_L__
-/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccVUIGBT.s:4      *ABS*:0000003f __SREG__
-/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccVUIGBT.s:5      *ABS*:00000000 __tmp_reg__
-/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccVUIGBT.s:6      *ABS*:00000001 __zero_reg__
-/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccVUIGBT.s:120    .text:00000000 initIO
+/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccaD3IUz.s:2      *ABS*:0000003e __SP_H__
+/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccaD3IUz.s:3      *ABS*:0000003d __SP_L__
+/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccaD3IUz.s:4      *ABS*:0000003f __SREG__
+/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccaD3IUz.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccaD3IUz.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccaD3IUz.s:120    .text:00000000 initIO
                             *COM*:00000004 setPosition
                             *COM*:00000004 actualPosition
-/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccVUIGBT.s:186    .text:00000042 readEncoder
-/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccVUIGBT.s:282    .text:00000098 step
-/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccVUIGBT.s:376    .text.startup:00000000 main
+                            *COM*:00000004 ratio
+/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccaD3IUz.s:211    .text:00000066 readEncoder
+/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccaD3IUz.s:316    .text:000000d0 step
+/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccaD3IUz.s:431    .text:00000136 min
+/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccaD3IUz.s:456    .text.startup:00000000 main
 
 UNDEFINED SYMBOLS
+__floatsisf
+__divsf3
+__fixsfsi
 __do_clear_bss

@@ -15,7 +15,7 @@
 		73AE70D11C44C95B00F240DC /* Index */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Index; sourceTree = BUILT_PRODUCTS_DIR; };
 		73AE70D41C44C95B00F240DC /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		73AE70D71C44C95B00F240DC /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
-		73C3A6E21C53FBF7008ED5CE /* StepperEncoder.ino */ = {isa = PBXFileReference; lastKnownFileType = text; path = StepperEncoder.ino; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		73C3A6E21C53FBF7008ED5CE /* StepperEncoder.ino */ = {isa = PBXFileReference; lastKnownFileType = text; name = StepperEncoder.ino; path = StepperEncoder/StepperEncoder.ino; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		73C3A6E31C540656008ED5CE /* protoAlpha.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = protoAlpha.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 

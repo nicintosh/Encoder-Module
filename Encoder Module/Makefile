@@ -50,7 +50,7 @@ MCU = atmega644
 #     automatically to create a 32-bit value in your source code.
 F_CPU = 16000000
 
-AVRDUDE_PROGRAMMER = avrispv2
+AVRDUDE_PROGRAMMER = usbasp
 
 # com1 = serial port. Use lpt1 to connect to parallel port.
 AVRDUDE_PORT = usb  # programmer connected to serial device

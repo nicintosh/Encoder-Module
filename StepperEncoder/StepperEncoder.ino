@@ -67,7 +67,7 @@ DDRB = _BV(DDB1);                  //set OC1A/PB1 as output (Arduino pin D9, DIP
 }
 
 void loop(){
-  //while (Serial.available() == 0);
+  /*//while (Serial.available() == 0);
   //stepperSteps = stepperSteps + input;
   if (Serial.available() > 0){input = Serial.parseInt();}
   if(input > 0){
@@ -88,7 +88,11 @@ void loop(){
   }
   //Serial.println(lastCheck + interval);
   if(millis() - lastCheck >= interval){readEncoder(); lastCheck = millis();}
-  
+  */
+
+  stepper(20, 0);
+  delay(500);
+  stepper(20,1);
 }
 
 boolean stepper(long steps, boolean dir){

@@ -7,7 +7,7 @@
 //
 
 //Macros
-#define bit_get(p,m) ((p) & (m))
+#define bit_get(p,m) ((p) & (0x01<<(m)))
 #define bit_set(p,m) ((p) |= (0x01 << (m)))
 #define bit_clear(p,m) ((p) &= ~(0x01 << (m)))
 #define bit_flip(p,m) ((p) ^= (m))
@@ -26,13 +26,13 @@
 
 //Encoder
 #define ENCODER PORTC
-#define ENC_SEL1 PORTC0
-#define ENC_SEL2 PORTC1
-#define ENC_OE PORTC2
-#define ENC_RST PORTC3
+#define ENC_SEL1 PORTC7
+#define ENC_SEL2 PORTC6
+#define ENC_OE PORTC5
+#define ENC_RST PORTC4
 
 //Data IN
-#define DATA PORTA
+#define DATA PINA
 #define D0 PORTA0
 #define D1 PORTA1
 #define D2 PORTA2
@@ -42,8 +42,8 @@
 #define D6 PORTA6
 #define D7 PORTA7
 
-//PORT B
-#define IO1 PORTB0
+//Interface
+#define INTERFACE PINB
 #define CLK PORTB1
 #define STEP_IN PORTB2
 #define DIR_IN PORTB3

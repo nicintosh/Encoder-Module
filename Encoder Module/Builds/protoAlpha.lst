@@ -10,10 +10,10 @@
   60               		.ident	"GCC: (GNU) 4.8.1"
 DEFINED SYMBOLS
                             *ABS*:00000000 protoAlpha.c
-/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccbRLVrx.s:2      *ABS*:0000003e __SP_H__
-/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccbRLVrx.s:3      *ABS*:0000003d __SP_L__
-/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccbRLVrx.s:4      *ABS*:0000003f __SREG__
-/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccbRLVrx.s:5      *ABS*:00000000 __tmp_reg__
-/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccbRLVrx.s:6      *ABS*:00000001 __zero_reg__
+/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccqtynxA.s:2      *ABS*:0000003e __SP_H__
+/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccqtynxA.s:3      *ABS*:0000003d __SP_L__
+/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccqtynxA.s:4      *ABS*:0000003f __SREG__
+/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccqtynxA.s:5      *ABS*:00000000 __tmp_reg__
+/var/folders/kl/49hln8nn0vq_822tp7nxclzw0000gn/T//ccqtynxA.s:6      *ABS*:00000001 __zero_reg__
 
 NO UNDEFINED SYMBOLS
